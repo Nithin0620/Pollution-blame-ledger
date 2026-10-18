@@ -57,7 +57,7 @@ VARIANTS = [(3.0, 2.0)]   # add (1,1),(6,1.5) for a wider structural ensemble (2
 _CHECK = ("theta", "mu", "sigma", "sigma_obs", "B", "a_free", "tau_g", "L_used")
 
 
-def _fit_one(X, y, u_ab, seed, warmup, samples, chains):
+def _fit_once(X, y, u_ab, seed, warmup, samples, chains):
     model = lambda X, y=None: receptor_model(X, y, u_ab)
     mcmc = MCMC(NUTS(model, target_accept_prob=0.9), num_warmup=warmup, num_samples=samples,
                 num_chains=chains, chain_method="parallel", progress_bar=False)
@@ -71,6 +71,19 @@ def _fit_one(X, y, u_ab, seed, warmup, samples, chains):
     prior = Predictive(model, num_samples=500)(jax.random.PRNGKey(seed + 99), jnp.asarray(X))
     prior = {k: np.asarray(v) for k, v in prior.items() if k in ("contrib", "B")}
     return post, prior, rhat, ess, div
+
+
+def _fit_one(X, y, u_ab, seed, warmup, samples, chains, max_rhat=1.1, retries=3):
+    """NUTS can park a chain in a bad mode on hard (real, multi-station) data: re-seed until chains agree."""
+    best = None
+    for r in range(retries):
+        out = _fit_once(X, y, u_ab, seed + 7919 * r, warmup, samples, chains)
+        out[2:]  # (post, prior, rhat, ess, div)
+        if best is None or out[2] < best[2]:
+            best = out
+        if out[2] <= max_rhat:
+            break
+    return best
 
 
 def fit(X, y, seed=0, warmup=300, samples=300, chains=2, variants=VARIANTS):

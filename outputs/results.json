@@ -513,6 +513,46 @@
   "raw_lo": 192.60320673303306,
   "raw_hi": 794.4226180204582
  },
+ "sensitivity": {
+  "gemm_ex_china": {
+   "total_deaths": {
+    "mean": 723.1201306039663,
+    "lo": 445.0773016446906,
+    "hi": 1098.5687923610044
+   },
+   "by_source_100": {
+    "traffic": {
+     "mean": 77.64783295187964,
+     "lo": 46.74425695295106,
+     "hi": 122.0753412131998
+    },
+    "industry": {
+     "mean": 19.13502014859452,
+     "lo": 12.245005116195896,
+     "hi": 28.41651130710188
+    },
+    "dust": {
+     "mean": 21.877052006197754,
+     "lo": 13.623975321295687,
+     "hi": 32.79705497995779
+    },
+    "biomass": {
+     "mean": 29.520813071710617,
+     "lo": 18.107762345777957,
+     "hi": 44.80967911194632
+    }
+   },
+   "params": {
+    "theta": 0.1231,
+    "theta_se": 0.01797,
+    "alpha": 1.5,
+    "mu": 10.4,
+    "nu": 25.9,
+    "tmrel": 2.4
+   },
+   "source": "Burnett et al. 2018 PNAS, authors' ex-China fit"
+  }
+ },
  "components": [
   {
    "id": "traffic",
@@ -852,7 +892,8 @@
    "rr_per10": 1.008,
    "base_rate": 0.004
   },
-  "note": "Placeholder parameters; mortality is episode-equivalent (annualisation shortcut); admissions use a short-term log-linear CRF."
+  "gemm_verified": true,
+  "note": "GEMM parameters verified against the authors' release; baseline rate, population and admissions are still placeholders; mortality is episode-equivalent (annualisation shortcut); admissions use a short-term log-linear CRF."
  },
  "hourly": {
   "traffic": {
@@ -4513,6 +4554,160 @@
   "learned_on": "synthetic",
   "note": "Intervals widened by validation-derived factors; see ledger/calibration.py."
  },
+ "literature": {
+  "traffic": {
+   "ours": {
+    "mean": 39.325543563911495,
+    "lo": 24.381448659999702,
+    "hi": 54.26963846782328
+   },
+   "refs": [
+    {
+     "ref": "IIT Kanpur winter CMB: vehicles",
+     "low": 25,
+     "high": 25,
+     "overlaps": true
+    },
+    {
+     "ref": "CEEW 2019: transport (inventories)",
+     "low": 17.9,
+     "high": 39.2,
+     "overlaps": true
+    }
+   ]
+  },
+  "industry": {
+   "ours": {
+    "mean": 13.241075076661623,
+    "lo": 5.145610056570484,
+    "hi": 21.336540096752763
+   },
+   "refs": [
+    {
+     "ref": "IIT Kanpur winter CMB: coal + fly ash (closest match)",
+     "low": 5,
+     "high": 5,
+     "overlaps": false
+    }
+   ]
+  },
+  "dust": {
+   "ours": {
+    "mean": 15.104013394856777,
+    "lo": 11.57531974384516,
+    "hi": 18.632707045868397
+   },
+   "refs": [
+    {
+     "ref": "IIT Kanpur winter CMB: road + construction dust",
+     "low": 6,
+     "high": 6,
+     "overlaps": false
+    },
+    {
+     "ref": "CEEW 2019: road dust (inventories)",
+     "low": 18.1,
+     "high": 37.8,
+     "overlaps": true
+    }
+   ]
+  },
+  "biomass": {
+   "ours": {
+    "mean": 19.15637205767526,
+    "lo": 6.323502321426641,
+    "hi": 31.989241793923874
+   },
+   "refs": [
+    {
+     "ref": "IIT Kanpur winter CMB: biomass burning",
+     "low": 26,
+     "high": 26,
+     "overlaps": true
+    }
+   ]
+  }
+ },
+ "by_station": [
+  {
+   "station": "Anand Vihar",
+   "lat": 28.6469,
+   "lon": 77.3158,
+   "observed_pm25": 184.83510352257548,
+   "ugm3": {
+    "traffic": 78.3597183227539,
+    "industry": 19.79428482055664,
+    "dust": 32.653018951416016,
+    "biomass": 32.201107025146484
+   },
+   "background": 21.266572952270508
+  },
+  {
+   "station": "RK Puram",
+   "lat": 28.5633,
+   "lon": 77.1869,
+   "observed_pm25": 133.75245997563346,
+   "ugm3": {
+    "traffic": 51.92515563964844,
+    "industry": 15.562186241149902,
+    "dust": 19.405672073364258,
+    "biomass": 25.304012298583984
+   },
+   "background": 21.266572952270508
+  },
+  {
+   "station": "ITO",
+   "lat": 28.6286,
+   "lon": 77.241,
+   "observed_pm25": 169.0425521725961,
+   "ugm3": {
+    "traffic": 74.17761993408203,
+    "industry": 20.203203201293945,
+    "dust": 26.379098892211914,
+    "biomass": 26.671104431152344
+   },
+   "background": 21.266572952270508
+  },
+  {
+   "station": "Rohini",
+   "lat": 28.7325,
+   "lon": 77.117,
+   "observed_pm25": 165.14781149863222,
+   "ugm3": {
+    "traffic": 57.37010955810547,
+    "industry": 26.05699920654297,
+    "dust": 21.951053619384766,
+    "biomass": 39.22629165649414
+   },
+   "background": 21.266572952270508
+  },
+  {
+   "station": "Dwarka",
+   "lat": 28.5921,
+   "lon": 77.046,
+   "observed_pm25": 148.5451109795066,
+   "ugm3": {
+    "traffic": 53.44184875488281,
+    "industry": 22.895299911499023,
+    "dust": 21.481143951416016,
+    "biomass": 30.49408531188965
+   },
+   "background": 21.266572952270508
+  },
+  {
+   "station": "Wazirpur",
+   "lat": 28.6996,
+   "lon": 77.165,
+   "observed_pm25": 165.12635822950742,
+   "ugm3": {
+    "traffic": 65.73439025878906,
+    "industry": 22.642995834350586,
+    "dust": 24.704187393188477,
+    "biomass": 30.2204647064209
+   },
+   "background": 21.266572952270508
+  }
+ ],
  "data_source": "synthetic",
  "truth_mean_ugm3": {
   "traffic": 38.38529364457738,

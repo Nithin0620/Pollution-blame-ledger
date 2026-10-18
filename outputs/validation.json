@@ -391,5 +391,925 @@
    "detected_increase": true
   }
  ],
- "note": "Calibration factors were learned on separate episodes from the ones scored here (held-out)."
+ "note": "Calibration factors were learned on separate episodes from the ones scored here (held-out).",
+ "baselines": {
+  "nnls": {
+   "traffic": {
+    "rmse": 15.796364264510506,
+    "bias": 14.101683339420894,
+    "rel_err_median": 0.3088104776491267,
+    "coverage90_raw": 0.125,
+    "width": 13.449171361880225
+   },
+   "industry": {
+    "rmse": 39.678124983371326,
+    "bias": 38.414323076472755,
+    "rel_err_median": 3.0062521319519333,
+    "coverage90_raw": 0.0,
+    "width": 37.11765320527442
+   },
+   "dust": {
+    "rmse": 10.276437758770577,
+    "bias": 3.388006846749639,
+    "rel_err_median": 0.45072704353382004,
+    "coverage90_raw": 0.125,
+    "width": 12.406693522439683
+   },
+   "biomass": {
+    "rmse": 13.915086889519525,
+    "bias": -13.42535975243757,
+    "rel_err_median": 0.26258766120903526,
+    "coverage90_raw": 0.25,
+    "width": 22.943258029016746
+   },
+   "background": {
+    "rmse": 43.5022194735794,
+    "bias": -41.8599996261552,
+    "rel_err_median": 1.0,
+    "coverage90_raw": 0.0,
+    "width": 4.295660117444134
+   },
+   "traffic+biomass": {
+    "rmse": 7.064840599647228,
+    "bias": 0.676323586983326,
+    "rel_err_median": 0.0719095069104129,
+    "coverage90_raw": 1.0,
+    "width": 23.404080027163854
+   },
+   "dust+background": {
+    "rmse": 38.69942888618054,
+    "bias": -38.47199277940556,
+    "rel_err_median": 0.5872265284470268,
+    "coverage90_raw": 0.0,
+    "width": 14.758780179900784
+   }
+  },
+  "fixed_shares": {
+   "traffic": {
+    "rmse": 5.5202969728864515,
+    "bias": 3.572973666622044,
+    "rel_err_median": 0.12653331776214463
+   },
+   "industry": {
+    "rmse": 4.146261057803723,
+    "bias": -4.077844431391643,
+    "rel_err_median": 0.31951964489037876
+   },
+   "dust": {
+    "rmse": 13.120742493207162,
+    "bias": -13.089375908827169,
+    "rel_err_median": 0.5538261569612486
+   },
+   "biomass": {
+    "rmse": 8.091469735047571,
+    "bias": -7.537679197715808,
+    "rel_err_median": 0.13410236562527114
+   },
+   "background": {
+    "rmse": 22.4092631778145,
+    "bias": 21.12173855608638,
+    "rel_err_median": 0.3609628910619379
+   },
+   "traffic+biomass": {
+    "rmse": 7.474933628005647,
+    "bias": -3.964705531093763,
+    "rel_err_median": 0.027389019787030594
+   },
+   "dust+background": {
+    "rmse": 10.5913768825271,
+    "bias": 8.032362647259216,
+    "rel_err_median": 0.06356779216743838
+   }
+  },
+  "bayes": {
+   "traffic": {
+    "rmse": 16.931251183275965,
+    "bias": 16.38228624817947,
+    "rel_err_median": 0.4053590706495554,
+    "coverage90_raw": 0.0,
+    "coverage90_cal": 1.0
+   },
+   "industry": {
+    "rmse": 8.472350134140964,
+    "bias": 8.045663064432173,
+    "rel_err_median": 0.5512306999782366,
+    "coverage90_raw": 0.0,
+    "coverage90_cal": 1.0
+   },
+   "dust": {
+    "rmse": 3.932975821576555,
+    "bias": -2.228437816238894,
+    "rel_err_median": 0.08138785124564579,
+    "coverage90_raw": 0.625,
+    "coverage90_cal": 0.875
+   },
+   "biomass": {
+    "rmse": 10.662085546509955,
+    "bias": -10.304144263162552,
+    "rel_err_median": 0.20063608240885134,
+    "coverage90_raw": 0.25,
+    "coverage90_cal": 1.0
+   },
+   "background": {
+    "rmse": 12.265401313830742,
+    "bias": -11.885612989873405,
+    "rel_err_median": 0.2659243781080177,
+    "coverage90_raw": 0.0,
+    "coverage90_cal": 0.75
+   },
+   "traffic+biomass": {
+    "rmse": 7.202290476972236,
+    "bias": 6.078141985016922,
+    "rel_err_median": 0.08051550629126401,
+    "coverage90_raw": 0.375,
+    "coverage90_cal": 1.0
+   },
+   "dust+background": {
+    "rmse": 14.249077450920153,
+    "bias": -14.114050806112298,
+    "rel_err_median": 0.21706789465510418,
+    "coverage90_raw": 0.0,
+    "coverage90_cal": 1.0
+   }
+  }
+ },
+ "shift_test": {
+  "bayes": {
+   "traffic": {
+    "rmse": 25.34214465414365,
+    "bias": 22.488691942572558,
+    "rel_err_median": 0.5294274531878587,
+    "coverage90_raw": 0.75,
+    "width": 73.13177546603994
+   },
+   "industry": {
+    "rmse": 11.761013870918985,
+    "bias": 10.357336873879541,
+    "rel_err_median": 1.2455970485649561,
+    "coverage90_raw": 0.875,
+    "width": 40.17468256852119
+   },
+   "dust": {
+    "rmse": 13.193777943096602,
+    "bias": -9.317051888383276,
+    "rel_err_median": 0.3497662692969722,
+    "coverage90_raw": 0.375,
+    "width": 17.209912572329724
+   },
+   "biomass": {
+    "rmse": 14.088718363215316,
+    "bias": -11.350139275947267,
+    "rel_err_median": 0.21792816145210026,
+    "coverage90_raw": 1.0,
+    "width": 46.46285553970969
+   },
+   "background": {
+    "rmse": 12.607591122807627,
+    "bias": -12.175455417026505,
+    "rel_err_median": 0.2858710347956318,
+    "coverage90_raw": 1.0,
+    "width": 41.85617301007312
+   },
+   "traffic+biomass": {
+    "rmse": 14.402926801998706,
+    "bias": 11.138552666625278,
+    "rel_err_median": 0.11638215165896565,
+    "coverage90_raw": 0.625,
+    "width": 34.232401524620144
+   },
+   "dust+background": {
+    "rmse": 23.45666909855041,
+    "bias": -21.492507305409777,
+    "rel_err_median": 0.2830187938161983,
+    "coverage90_raw": 0.875,
+    "width": 62.03097012157159
+   }
+  },
+  "nnls": {
+   "traffic": {
+    "rmse": 14.516932229526109,
+    "bias": 13.44930694607491,
+    "rel_err_median": 0.2715759775244757,
+    "coverage90_raw": 0.25,
+    "width": 11.765616660499543
+   },
+   "industry": {
+    "rmse": 37.33783606929252,
+    "bias": 35.10793439543282,
+    "rel_err_median": 3.475951393291358,
+    "coverage90_raw": 0.0,
+    "width": 31.47180951653268
+   },
+   "dust": {
+    "rmse": 8.484078092479859,
+    "bias": 6.217348386689059,
+    "rel_err_median": 0.18815216826446307,
+    "coverage90_raw": 0.5,
+    "width": 11.577309637873272
+   },
+   "biomass": {
+    "rmse": 11.377860285237864,
+    "bias": -10.114259401931083,
+    "rel_err_median": 0.2429576454063147,
+    "coverage90_raw": 0.375,
+    "width": 20.332128834507074
+   },
+   "background": {
+    "rmse": 44.67967280827243,
+    "bias": -44.104425669028316,
+    "rel_err_median": 1.0,
+    "coverage90_raw": 0.0,
+    "width": 4.167218927852055
+   },
+   "traffic+biomass": {
+    "rmse": 8.290548064018713,
+    "bias": 3.33504754414383,
+    "rel_err_median": 0.09045211477775758,
+    "coverage90_raw": 0.75,
+    "width": 20.635792749722313
+   },
+   "dust+background": {
+    "rmse": 38.340840484440484,
+    "bias": -37.88707728233926,
+    "rel_err_median": 0.45751030401187065,
+    "coverage90_raw": 0.0,
+    "width": 12.847594096101162
+   }
+  },
+  "fixed_shares": {
+   "traffic": {
+    "rmse": 17.990393282773454,
+    "bias": -1.391526506386429,
+    "rel_err_median": 0.22408608472446934
+   },
+   "industry": {
+    "rmse": 5.278621014893901,
+    "bias": -1.4937632477177387,
+    "rel_err_median": 0.3158212270661545
+   },
+   "dust": {
+    "rmse": 26.99925278184001,
+    "bias": -21.861430446277822,
+    "rel_err_median": 0.683599407757322
+   },
+   "biomass": {
+    "rmse": 10.700069554196485,
+    "bias": 3.701626705035544,
+    "rel_err_median": 0.18614243599958638
+   },
+   "background": {
+    "rmse": 22.724843191472054,
+    "bias": 21.043725063239187,
+    "rel_err_median": 0.4900467747181321
+   },
+   "traffic+biomass": {
+    "rmse": 15.384727197410687,
+    "bias": 2.3101001986491134,
+    "rel_err_median": 0.15015405407816998
+   },
+   "dust+background": {
+    "rmse": 13.06124934596357,
+    "bias": -0.8177053830386347,
+    "rel_err_median": 0.13462357289438642
+   }
+  },
+  "episodes": [
+   {
+    "scale": {
+     "traffic": 0.6402322610258381,
+     "industry": 0.6394388696641002,
+     "dust": 2.189863199729641,
+     "biomass": 0.9234125058538818
+    },
+    "truth_shares": {
+     "traffic": 0.15095703887649548,
+     "industry": 0.044209073443628226,
+     "dust": 0.2995467639972305,
+     "biomass": 0.27514984160800987,
+     "background": 0.23013728207463588
+    }
+   },
+   {
+    "scale": {
+     "traffic": 2.12355118848253,
+     "industry": 0.4749447263094711,
+     "dust": 0.644803730253571,
+     "biomass": 0.560327031652165
+    },
+    "truth_shares": {
+     "traffic": 0.48924823052745764,
+     "industry": 0.03779506083446439,
+     "dust": 0.09136740456213607,
+     "biomass": 0.17689316816427314,
+     "background": 0.2046961359116687
+    }
+   },
+   {
+    "scale": {
+     "traffic": 1.0518770779026116,
+     "industry": 1.4534862834687163,
+     "dust": 2.260621785688958,
+     "biomass": 0.7512742420908979
+    },
+    "truth_shares": {
+     "traffic": 0.20158078401141946,
+     "industry": 0.09127175023336324,
+     "dust": 0.2648491102591915,
+     "biomass": 0.18660530870970032,
+     "background": 0.2556930467863254
+    }
+   },
+   {
+    "scale": {
+     "traffic": 0.9561546092126681,
+     "industry": 0.7172501754573669,
+     "dust": 0.4726108402371124,
+     "biomass": 0.4656877091008434
+    },
+    "truth_shares": {
+     "traffic": 0.31500912555877886,
+     "industry": 0.07208216035724918,
+     "dust": 0.09109968630850904,
+     "biomass": 0.21293100709538212,
+     "background": 0.3088780206800808
+    }
+   },
+   {
+    "scale": {
+     "traffic": 1.491350846301727,
+     "industry": 0.7623646717339675,
+     "dust": 0.4698485948789179,
+     "biomass": 0.9882412149764515
+    },
+    "truth_shares": {
+     "traffic": 0.30579785434960277,
+     "industry": 0.04969396684842705,
+     "dust": 0.055452126091087774,
+     "biomass": 0.2512662164023665,
+     "background": 0.33778983630851606
+    }
+   },
+   {
+    "scale": {
+     "traffic": 0.8152388534566304,
+     "industry": 1.7037495954618034,
+     "dust": 1.7369557381645708,
+     "biomass": 1.3052864154980943
+    },
+    "truth_shares": {
+     "traffic": 0.15608799751254648,
+     "industry": 0.0999371843463836,
+     "dust": 0.18219224986261565,
+     "biomass": 0.30671002374731215,
+     "background": 0.2550725445311421
+    }
+   },
+   {
+    "scale": {
+     "traffic": 1.0273372177714322,
+     "industry": 0.6258232654534643,
+     "dust": 1.5410094157324095,
+     "biomass": 0.4176892476926707
+    },
+    "truth_shares": {
+     "traffic": 0.27111222876487423,
+     "industry": 0.05025622090039856,
+     "dust": 0.2566622225410258,
+     "biomass": 0.1484730975662485,
+     "background": 0.273496230227453
+    }
+   },
+   {
+    "scale": {
+     "traffic": 1.437009261074643,
+     "industry": 0.423120676922915,
+     "dust": 2.107191609483482,
+     "biomass": 1.349351338495145
+    },
+    "truth_shares": {
+     "traffic": 0.22838861090035653,
+     "industry": 0.022877683678951707,
+     "dust": 0.1978809625124014,
+     "biomass": 0.3060425885049807,
+     "background": 0.2448101544033097
+    }
+   }
+  ],
+  "n": 8
+ },
+ "real_checks": {
+  "windows": {
+   "before": {
+    "window": [
+     "2018-09-20",
+     "2018-10-04"
+    ],
+    "mean_pm25_obs": 48.43743799593254,
+    "mean_fire_frp_mw": 45.142857142857146,
+    "ppc_coverage90": 0.9290674603174603,
+    "max_rhat": 1.0121244192123413,
+    "min_ess": 142.6470803294727,
+    "divergences": 0,
+    "shares": {
+     "traffic": {
+      "mean": 0.3216083209616821,
+      "lo": 0.1968870763371906,
+      "hi": 0.44632956558617365,
+      "raw_lo": 0.28180685673044953,
+      "raw_hi": 0.36039670959954556
+     },
+     "industry": {
+      "mean": 0.06705359801678182,
+      "lo": 0.0,
+      "hi": 0.20662103907757817,
+      "raw_lo": 0.04013165341176031,
+      "raw_hi": 0.09593355768449267
+     },
+     "dust": {
+      "mean": 0.14690608491455662,
+      "lo": 0.0863902062398823,
+      "hi": 0.20742196358923093,
+      "raw_lo": 0.1186272504517678,
+      "raw_hi": 0.17804268046153063
+     },
+     "biomass": {
+      "mean": 0.012010790786779016,
+      "lo": 0.0,
+      "hi": 0.035009132815504496,
+      "raw_lo": 0.00526920324639172,
+      "raw_hi": 0.020455134161740517
+     },
+     "background": {
+      "mean": 0.45242120532020036,
+      "lo": 0.33140145376441726,
+      "hi": 0.5734409568759835,
+      "raw_lo": 0.416254641266835,
+      "raw_hi": 0.4917097525344555
+     }
+    },
+    "mean_ugm3": {
+     "traffic": {
+      "mean": 15.594027182757857,
+      "lo": 9.669347864369634,
+      "hi": 21.51870650114608,
+      "raw_lo": 13.72548142274221,
+      "raw_hi": 17.458764211336774
+     },
+     "industry": {
+      "mean": 3.2515203453371457,
+      "lo": 0.0,
+      "hi": 9.978210537666452,
+      "raw_lo": 1.9440387234091763,
+      "raw_hi": 4.633506405353547
+     },
+     "dust": {
+      "mean": 7.123298396340883,
+      "lo": 4.240402723026138,
+      "hi": 10.006194069655628,
+      "raw_lo": 5.768535203735034,
+      "raw_hi": 8.59900697171688
+     },
+     "biomass": {
+      "mean": 0.5823548629619958,
+      "lo": 0.0,
+      "hi": 1.686214176999182,
+      "raw_lo": 0.25652501809721195,
+      "raw_hi": 0.9854093551635739
+     },
+     "background": {
+      "mean": 21.94023193836212,
+      "lo": 15.74868894970097,
+      "hi": 28.131774927023272,
+      "raw_lo": 20.02836322784424,
+      "raw_hi": 23.888754272460936
+     }
+    },
+    "literature": {
+     "traffic": {
+      "ours": {
+       "mean": 32.160832096168214,
+       "lo": 19.688707633719062,
+       "hi": 44.632956558617366
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: vehicles",
+        "low": 25,
+        "high": 25,
+        "overlaps": true
+       },
+       {
+        "ref": "CEEW 2019: transport (inventories)",
+        "low": 17.9,
+        "high": 39.2,
+        "overlaps": true
+       }
+      ]
+     },
+     "industry": {
+      "ours": {
+       "mean": 6.705359801678182,
+       "lo": 0.0,
+       "hi": 20.662103907757817
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: coal + fly ash (closest match)",
+        "low": 5,
+        "high": 5,
+        "overlaps": true
+       }
+      ]
+     },
+     "dust": {
+      "ours": {
+       "mean": 14.690608491455661,
+       "lo": 8.63902062398823,
+       "hi": 20.742196358923092
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: road + construction dust",
+        "low": 6,
+        "high": 6,
+        "overlaps": false
+       },
+       {
+        "ref": "CEEW 2019: road dust (inventories)",
+        "low": 18.1,
+        "high": 37.8,
+        "overlaps": true
+       }
+      ]
+     },
+     "biomass": {
+      "ours": {
+       "mean": 1.2010790786779015,
+       "lo": 0.0,
+       "hi": 3.5009132815504493
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: biomass burning",
+        "low": 26,
+        "high": 26,
+        "overlaps": false
+       }
+      ]
+     }
+    },
+    "flagged_pairs": [
+     [
+      "traffic",
+      "dust"
+     ]
+    ]
+   },
+   "peak": {
+    "window": [
+     "2018-10-28",
+     "2018-11-11"
+    ],
+    "mean_pm25_obs": 241.1348586339286,
+    "mean_fire_frp_mw": 18671.071428571428,
+    "ppc_coverage90": 0.9365079365079365,
+    "max_rhat": 1.017963171005249,
+    "min_ess": 185.6161290968055,
+    "divergences": 0,
+    "shares": {
+     "traffic": {
+      "mean": 0.19165347774093253,
+      "lo": 0.12781606033264864,
+      "hi": 0.2554908951492164,
+      "raw_lo": 0.1719422619772809,
+      "raw_hi": 0.212167752484252
+     },
+     "industry": {
+      "mean": 0.08315192733246235,
+      "lo": 0.015702026276280354,
+      "hi": 0.15060182838864433,
+      "raw_lo": 0.06989792637017471,
+      "raw_hi": 0.09686576996847347
+     },
+     "dust": {
+      "mean": 0.12329775011874483,
+      "lo": 0.08265669921803914,
+      "hi": 0.16393880101945052,
+      "raw_lo": 0.10314232810498132,
+      "raw_hi": 0.1430443433809263
+     },
+     "biomass": {
+      "mean": 0.10145680545248233,
+      "lo": 0.05153849313527265,
+      "hi": 0.151375117769692,
+      "raw_lo": 0.08578822328059803,
+      "raw_hi": 0.11874955768083961
+     },
+     "background": {
+      "mean": 0.5004400393553778,
+      "lo": 0.38094980658124583,
+      "hi": 0.6199302721295099,
+      "raw_lo": 0.4607176725829459,
+      "raw_hi": 0.5352191377855916
+     }
+    },
+    "mean_ugm3": {
+     "traffic": {
+      "mean": 46.22614464044572,
+      "lo": 31.22988417992363,
+      "hi": 61.222405100967805,
+      "raw_lo": 41.53496767679851,
+      "raw_hi": 50.98447170257569
+     },
+     "industry": {
+      "mean": 20.055591712687164,
+      "lo": 3.807846678360729,
+      "hi": 36.3033367470136,
+      "raw_lo": 16.878072253863017,
+      "raw_hi": 23.3742514928182
+     },
+     "dust": {
+      "mean": 29.7393242820104,
+      "lo": 19.92056639449295,
+      "hi": 39.55808216952785,
+      "raw_lo": 24.86209291617076,
+      "raw_hi": 34.50230197906494
+     },
+     "biomass": {
+      "mean": 24.471781844993433,
+      "lo": 12.65477815417923,
+      "hi": 36.288785535807634,
+      "raw_lo": 20.709590069452926,
+      "raw_hi": 28.512422180175783
+     },
+     "background": {
+      "mean": 120.71841361999512,
+      "lo": 89.85288825779647,
+      "hi": 151.58393898219379,
+      "raw_lo": 110.68392333984374,
+      "raw_hi": 129.92839889526368
+     }
+    },
+    "literature": {
+     "traffic": {
+      "ours": {
+       "mean": 19.165347774093252,
+       "lo": 12.781606033264865,
+       "hi": 25.54908951492164
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: vehicles",
+        "low": 25,
+        "high": 25,
+        "overlaps": true
+       },
+       {
+        "ref": "CEEW 2019: transport (inventories)",
+        "low": 17.9,
+        "high": 39.2,
+        "overlaps": true
+       }
+      ]
+     },
+     "industry": {
+      "ours": {
+       "mean": 8.315192733246235,
+       "lo": 1.5702026276280354,
+       "hi": 15.060182838864433
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: coal + fly ash (closest match)",
+        "low": 5,
+        "high": 5,
+        "overlaps": true
+       }
+      ]
+     },
+     "dust": {
+      "ours": {
+       "mean": 12.329775011874483,
+       "lo": 8.265669921803914,
+       "hi": 16.39388010194505
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: road + construction dust",
+        "low": 6,
+        "high": 6,
+        "overlaps": false
+       },
+       {
+        "ref": "CEEW 2019: road dust (inventories)",
+        "low": 18.1,
+        "high": 37.8,
+        "overlaps": false
+       }
+      ]
+     },
+     "biomass": {
+      "ours": {
+       "mean": 10.145680545248233,
+       "lo": 5.153849313527266,
+       "hi": 15.1375117769692
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: biomass burning",
+        "low": 26,
+        "high": 26,
+        "overlaps": false
+       }
+      ]
+     }
+    },
+    "flagged_pairs": [
+     [
+      "dust",
+      "background"
+     ]
+    ]
+   },
+   "after": {
+    "window": [
+     "2018-11-26",
+     "2018-12-10"
+    ],
+    "mean_pm25_obs": 201.08494543650795,
+    "mean_fire_frp_mw": 240.71428571428572,
+    "ppc_coverage90": 0.9340277777777778,
+    "max_rhat": 1.0348727703094482,
+    "min_ess": 72.13991747530876,
+    "divergences": 0,
+    "shares": {
+     "traffic": {
+      "mean": 0.26355544030965655,
+      "lo": 0.16856067237164474,
+      "hi": 0.35855020824766837,
+      "raw_lo": 0.2333545659105273,
+      "raw_hi": 0.29321305159241445
+     },
+     "industry": {
+      "mean": 0.04261217373472872,
+      "lo": 0.0,
+      "hi": 0.09314724969906922,
+      "raw_lo": 0.03301001614706872,
+      "raw_hi": 0.05321496831889366
+     },
+     "dust": {
+      "mean": 0.11983687490841298,
+      "lo": 0.0834760305849521,
+      "hi": 0.15619771923187387,
+      "raw_lo": 0.10249944139271755,
+      "raw_hi": 0.13819908334306388
+     },
+     "biomass": {
+      "mean": 0.073308928748577,
+      "lo": 0.02385599001996315,
+      "hi": 0.12276186747719085,
+      "raw_lo": 0.05835856960098895,
+      "raw_hi": 0.09101261527766007
+     },
+     "background": {
+      "mean": 0.5006865822986247,
+      "lo": 0.4039312811295733,
+      "hi": 0.5974418834676761,
+      "raw_lo": 0.4702190549265397,
+      "raw_hi": 0.5305454224953717
+     }
+    },
+    "mean_ugm3": {
+     "traffic": {
+      "mean": 52.98133354475102,
+      "lo": 34.18095910097885,
+      "hi": 71.78170798852318,
+      "raw_lo": 46.95369397799175,
+      "raw_hi": 58.80026162465414
+     },
+     "industry": {
+      "mean": 8.566373168569603,
+      "lo": 0.0,
+      "hi": 18.86540947880705,
+      "raw_lo": 6.615138155470293,
+      "raw_hi": 10.73290254175663
+     },
+     "dust": {
+      "mean": 24.090841026784233,
+      "lo": 16.587227445465608,
+      "hi": 31.594454608102858,
+      "raw_lo": 20.484529387950897,
+      "raw_hi": 27.851693797111515
+     },
+     "biomass": {
+      "mean": 14.736982335597277,
+      "lo": 4.806117539741569,
+      "hi": 24.667847131452987,
+      "raw_lo": 11.759616847833,
+      "raw_hi": 18.31702113946279
+     },
+     "background": {
+      "mean": 100.65986455917358,
+      "lo": 80.35702242261499,
+      "hi": 120.96270669573218,
+      "raw_lo": 94.30024070739746,
+      "raw_hi": 106.95894470214844
+     }
+    },
+    "literature": {
+     "traffic": {
+      "ours": {
+       "mean": 26.355544030965657,
+       "lo": 16.856067237164474,
+       "hi": 35.85502082476684
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: vehicles",
+        "low": 25,
+        "high": 25,
+        "overlaps": true
+       },
+       {
+        "ref": "CEEW 2019: transport (inventories)",
+        "low": 17.9,
+        "high": 39.2,
+        "overlaps": true
+       }
+      ]
+     },
+     "industry": {
+      "ours": {
+       "mean": 4.2612173734728716,
+       "lo": 0.0,
+       "hi": 9.314724969906923
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: coal + fly ash (closest match)",
+        "low": 5,
+        "high": 5,
+        "overlaps": true
+       }
+      ]
+     },
+     "dust": {
+      "ours": {
+       "mean": 11.983687490841298,
+       "lo": 8.34760305849521,
+       "hi": 15.619771923187386
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: road + construction dust",
+        "low": 6,
+        "high": 6,
+        "overlaps": false
+       },
+       {
+        "ref": "CEEW 2019: road dust (inventories)",
+        "low": 18.1,
+        "high": 37.8,
+        "overlaps": false
+       }
+      ]
+     },
+     "biomass": {
+      "ours": {
+       "mean": 7.3308928748577005,
+       "lo": 2.385599001996315,
+       "hi": 12.276186747719086
+      },
+      "refs": [
+       {
+        "ref": "IIT Kanpur winter CMB: biomass burning",
+        "low": 26,
+        "high": 26,
+        "overlaps": false
+       }
+      ]
+     }
+    },
+    "flagged_pairs": [
+     [
+      "traffic",
+      "background"
+     ]
+    ]
+   }
+  },
+  "biomass_direction": {
+   "p_peak_gt_before": 1.0,
+   "p_peak_gt_after": 0.99875,
+   "fire_ratio_peak_to_after": 77.56528189910979,
+   "note": "Posterior probability that the burning contribution (ug/m3) is higher in the peak window than before/after."
+  },
+  "station": "6 Delhi stations (CPCB/DPCC)",
+  "caveats": [
+   "Six stations share one airshed meteorology (cross-station median); boundary-layer height is a solar-radiation proxy; fire-footprint is regional daily FRP with a fixed 5-18 h lag.",
+   "The CPCB files appear gap-filled by interpolation.",
+   "Station population weights are a placeholder (equal split of ~20 M).",
+   "No source-level ground truth: these are consistency checks, not accuracy measurements."
+  ]
+ }
 }

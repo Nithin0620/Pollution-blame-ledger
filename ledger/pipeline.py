@@ -5,7 +5,8 @@ from . import SOURCES, SOURCE_LABELS
 from .features import build
 from .model import fit
 from .diagnostics import identifiability
-from .health import burden, admissions, GEMM, BASE_RATE, ADULT_SHARE, ADM_RR_PER10, ADM_BASE_RATE
+from .health import burden, admissions, GEMM, GEMM_EX_CHINA, BASE_RATE, ADULT_SHARE, ADM_RR_PER10, ADM_BASE_RATE
+from .literature import benchmark
 from .calibration import load as load_calibration, widen
 
 
@@ -27,6 +28,7 @@ def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourl
     days = y.shape[1] / 24
     bd = burden(th, B, f["pop_m"], SOURCES, days, seed=seed)
     ad = admissions(th, B, f["pop_m"], SOURCES, days, seed=seed + 1)
+    bd_alt = burden(th, B, f["pop_m"], SOURCES, days, fractions=(1.0,), seed=seed, gemm=GEMM_EX_CHINA)
     total_pm = pm.sum(1)
 
     comps = []
@@ -51,10 +53,13 @@ def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourl
     result = {"stations": f["stations"], "times": f["times"], "episode_days": days,
               "observed_pm25_popw": (f["y"] * w[:, None]).sum(0).round(1).tolist(),
               "total_pm25": q(total_pm), "total_deaths": q(bd["total"]), "total_adm": q(ad["total"]),
+              "sensitivity": {"gemm_ex_china": {"total_deaths": q(bd_alt["total"]),
+                              "by_source_100": {k: q(bd_alt[f"{k}@1.0"]) for k in SOURCES},
+                              "params": GEMM_EX_CHINA, "source": "Burnett et al. 2018 PNAS, authors' ex-China fit"}},
               "components": comps, "identifiability": ident, "sampler": diag,
               "health_assumptions": {"gemm": GEMM, "baseline_rate": BASE_RATE, "adult_share": ADULT_SHARE,
                                      "admissions": {"rr_per10": ADM_RR_PER10, "base_rate": ADM_BASE_RATE},
-                                     "note": "Placeholder parameters; mortality is episode-equivalent (annualisation shortcut); admissions use a short-term log-linear CRF."}}
+                                     "gemm_verified": True, "note": "GEMM parameters verified against the authors' release; baseline rate, population and admissions are still placeholders; mortality is episode-equivalent (annualisation shortcut); admissions use a short-term log-linear CRF."}}
     if hourly:
         # hourly pop-weighted posterior contributions per source
         Bt = np.repeat(B, 24, axis=1)[:, : y.shape[1]]
@@ -75,6 +80,14 @@ def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourl
         result["ppc_coverage90"] = float(np.mean((y >= lo) & (y <= hi)))
     cal = load_calibration() if calibration == "default" else calibration
     result["calibration"] = widen(result, cal)
+    result["literature"] = benchmark(result["components"])
+    if len(f["stations"]) > 1:
+        sh = th.mean(0)                                              # [K,S] mean contribution per station
+        obs = y.mean(1)
+        lat = dict(zip(stations.station, stations.get("lat", [None] * len(stations)))); lon = dict(zip(stations.station, stations.get("lon", [None] * len(stations))))
+        result["by_station"] = [{"station": n, "lat": lat.get(n), "lon": lon.get(n), "observed_pm25": float(obs[j]),
+                                 "ugm3": {SOURCES[k]: float(sh[k, j]) for k in range(len(SOURCES))},
+                                 "background": float(B.mean())} for j, n in enumerate(f["stations"])]
     result["_pm"] = pm      # internal (stripped before serialisation)
     result["_w"] = w
     return result
