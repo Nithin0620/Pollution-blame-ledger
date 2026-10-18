@@ -12,14 +12,16 @@
 
 </div>
 
-> **Research prototype. Read before citing any number.** All data in this repository is **synthetic** (simulated Delhi-like observations with known ground truth). GEMM parameters are verified against the published release; baseline mortality, population and admissions values are still **placeholders**. Source splits are only reliable after the validation-derived interval widening described below. Nothing here is a claim about real Delhi air or real deaths.
+**Team Last Attempt.**
+
+> **Research prototype. Read before citing any number.** The repository holds two kinds of data: a **simulated** demo episode with known ground truth (used to validate the method) and **real** hourly readings from six Delhi CPCB stations plus NASA fire detections for 2018. Real-data source shares have **no ground truth**. GEMM parameters are verified against the published release; baseline mortality, population weights and admissions values are still **placeholders**. Use the death figures to compare sources, not as absolute counts.
 
 <p align="center">
   <img src="docs/screenshots/01-home.png" alt="Home page: what the Ledger does and where to start" width="900">
 </p>
 
 ## Contents
-[Research foundation](docs/RESEARCH.md) · [The problem](#the-problem) · [What the ledger does differently](#what-the-ledger-does-differently) · [Dashboard tour](#dashboard-tour) · [How it works](#how-it-works) · [Results](#results) · [Quick start](#quick-start) · [Using real data](#using-real-data) · [Repository layout](#repository-layout) · [Limitations and roadmap](#limitations-and-roadmap)
+[Research foundation](docs/RESEARCH.md) · [The problem](#the-problem) · [What the ledger does differently](#what-the-ledger-does-differently) · [Dashboard tour](#dashboard-tour) · [How it works](#how-it-works) · [Results](#results) · [Quick start](#quick-start) · [Real data](#real-data) · [Repository layout](#repository-layout) · [Limitations and roadmap](#limitations-and-roadmap)
 
 ## The problem
 Delhi's PM<sub>2.5</sub> episodes are the superposition of co-varying emission streams (crop-residue burning, vehicles, construction dust, industry) modulated by meteorology. Attribution is an ill-posed inverse problem, so public debate runs on anecdote that cannot be falsified, and the health burden of each source is never quantified.
@@ -85,7 +87,7 @@ flowchart LR
 | 5. Falsification and generalisation | `ledger/validate.py`, `ledger/calibration.py` |
 
 ## Results
-First validation on synthetic episodes (12 calibration episodes, 8 held-out):
+First validation on synthetic episodes (known truth) (12 calibration episodes, 8 held-out):
 
 | Component | Median relative error | 90% interval coverage (raw) | 90% interval coverage (calibrated, held-out) |
 |---|---|---|---|
@@ -112,13 +114,18 @@ python -m pytest tests                  # offline tests
 ```
 Open `outputs/dashboard.html`. It is a single file: start on the Home page and pick a dataset card (synthetic demo or real Delhi windows). The Upload page previews your own CSV in the browser; full attribution of uploads is a later feature.
 
-## Using real data
-```bash
-python -m ledger.ingest --cpcb data/cpcb/ --firms data/firms_viirs.csv --stations data/stations.csv \
-    --start 2025-11-01 --end 2025-11-10 --out data/episode
-python run.py --csv data/episode/observations.csv --stations data/episode/stations.csv
-```
-`stations.csv` needs `station, lat, lon, pop_m`, with station names matching the CPCB files. The ingestion module is unit-tested on fabricated fixtures only. The Open-Meteo fetch and real CPCB/FIRMS exports have **not** been run end to end, so expect to adjust column matching on first contact with real files.
+## Real data
+The repository ships six real hourly CPCB station files (`data/cpcb/`) and NASA FIRMS daily fire power for Punjab and Haryana, 2018 (`data/firms_viirs_punjab_haryana_daily_2018.csv`). `python run.py --real` fits three windows (before burning, burning peak, after burning) across the six stations and adds them to the dashboard.
+
+| Window | Mean PM<sub>2.5</sub> | Largest source |
+|---|---|---|
+| Before burning (20 Sep - 4 Oct 2018) | 48 µg/m³ | Regional haze (45%) |
+| Burning peak (28 Oct - 11 Nov 2018) | 241 µg/m³ | Regional haze (50%) |
+| After burning (26 Nov - 10 Dec 2018) | 201 µg/m³ | Regional haze (50%) |
+
+What the real-data checks show (details in [docs/RESEARCH.md](docs/RESEARCH.md)): the model's 90% predictive band covers 93-94% of observed readings, and it gets the direction of the fire signal right (more burning at the peak). It also compresses the burning swing and gives crop burning about 10% at the peak against about 26% in a published IIT-Kanpur split; we report that gap rather than tune it away.
+
+Your own CPCB-style hourly CSV needs the columns `PM2.5, PM10, NO2, SO2, CO, WS, WD, SR, AT, year, month, day, hour`. The dashboard's Upload page checks a file and previews it in the browser; running the full model on uploads is on the roadmap. Station coordinates in `ledger/realdata.py` are approximate.
 
 ## Repository layout
 ```
@@ -135,24 +142,27 @@ ledger/
   realdata.py           real CPCB hourly (6 stations) + NASA FIRMS -> model schema
   realcheck.py          out-of-model checks on real data
   synth_alt.py          independent misspecified generator (scoring run pending)
-data/cpcb/              six real hourly station files (Jun 2018 - Oct 2019)
-data/                   NASA FIRMS daily fire power (Punjab/Haryana, 2018)
   validate.py           held-out validation and plume injection
   calibration.py        interval calibration
   pipeline.py           end-to-end orchestration
-dashboard/template.html dashboard source
+data/cpcb/              six real hourly station files (Jun 2018 - Oct 2019)
+data/                   NASA FIRMS daily fire power (Punjab/Haryana, 2018)
+dashboard/template.html dashboard source (Home, Datasets, Learn how it works, Upload)
+docs/RESEARCH.md        literature, parameter provenance, evidence, what is still to do
 outputs/                generated results and dashboard
 docs/screenshots/       images used in this README
 tests/                  offline tests
 ```
 
 ## Limitations and roadmap
-1. **Real data: six stations, one season.** The pipeline runs on six real Delhi stations with NASA fires (`python run.py --real`); it reproduces PM2.5 and gets the burning direction right but compresses the burning swing (see docs/RESEARCH.md). Multi-station data and independent ground truth (speciation campaigns) are still needed.
+1. **Real data: six stations, one season, no ground truth.** The pipeline runs on six real Delhi stations with NASA fires (`python run.py --real`); it reproduces PM2.5 and gets the burning direction right but compresses the burning swing (see docs/RESEARCH.md). Independent ground truth (speciation campaigns) is still needed.
 2. **Partly placeholder health parameters.** GEMM parameters are now verified against the authors' release (see [docs/RESEARCH.md](docs/RESEARCH.md)); Delhi baseline rate, population and the admissions function are still placeholders.
 3. **Source separation.** Add explicit source profiles (PMF/CMB-style) and Lagrangian back-trajectories to separate traffic from crop burning.
 4. **Unused inputs.** Sentinel-2 land-cover change and OpenStreetMap road and industrial geometries are not yet used.
-5. **Real-time view.** A hosted live panel with current station readings.
-6. **Real-data validation.** Leave-one-episode-out on real episodes and triangulation against published apportionment studies.
+5. **Live tracking for every station (next).** Stream hourly readings from all stations, refresh the model, and update the source split and health cost live. The current sampler takes minutes per run, so a faster refresh method is part of this work.
+6. **Real-data validation.** Leave-one-episode-out on real episodes, the 2020 lockdown as a natural experiment, and triangulation against published apportionment studies.
+7. **Upload and new events.** Full attribution on user-uploaded files and a new-event mode.
+8. **Sourced health inputs.** Delhi baseline death rate, population weights and an admissions curve.
 
 ## License
 MIT. See `LICENSE`.
