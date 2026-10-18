@@ -107,12 +107,28 @@ First validation on synthetic episodes (known truth) (12 calibration episodes, 8
 ## Quick start
 ```bash
 pip install -r requirements.txt
+pip install -r backend/requirements.txt
 python run.py --demo                    # ~10 min: 12 calibration + 8 held-out episodes, plume injection, dashboard
 python run.py --demo --skip-validation  # ~30 s: reuse the saved calibration and validation
 python run.py --real                    # ~4 min: six real Delhi stations + NASA FIRMS (3 windows); adds them to the dashboard
-python -m pytest tests                  # offline tests
+python -m pytest tests backend/tests   # offline and API tests
 ```
-Open `outputs/dashboard.html`. It is a single file: start on the Home page and pick a dataset card (synthetic demo or real Delhi windows). The Upload page previews your own CSV in the browser; full attribution of uploads is a later feature.
+
+### Modern React & FastAPI Full-Stack Dashboard
+In addition to the static `outputs/dashboard.html`, you can run the full-stack web application:
+
+```bash
+# 1. Start the FastAPI backend
+uvicorn backend.app.main:app --reload --port 8000
+
+# 2. In another terminal, start the React frontend
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173` to explore the interactive React dashboard with 60fps policy simulation, Recharts timeline crosshairs, Delhi station scatter map, and drag-and-drop CSV validator.
+
 
 ## Real data
 The repository ships six real hourly CPCB station files (`data/cpcb/`) and NASA FIRMS daily fire power for Punjab and Haryana, 2018 (`data/firms_viirs_punjab_haryana_daily_2018.csv`). `python run.py --real` fits three windows (before burning, burning peak, after burning) across the six stations and adds them to the dashboard.

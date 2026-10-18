@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .venv/
 outputs/demo_observations.csv
+outputs/jobs/
+frontend/dist/
+frontend/node_modules/
