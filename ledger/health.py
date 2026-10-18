@@ -41,3 +41,29 @@ def burden(theta_ks, B, pop_m, sources, days, fractions=(0.5, 1.0), seed=0):
             out[f"{k}@{f}"] = (scale * (af(C, th) - af(np.clip(C - f * theta_ks[:, i, :], 0, None), th))).sum(1)
     out["background@1.0"] = (scale * (af(C, th) - af(np.clip(C - bg, 0, None), th))).sum(1)
     return out
+
+
+# ---- Morbidity: short-term cardio-respiratory hospital admissions (PLACEHOLDER parameters) ----
+# Log-linear CRF, RR per 10 ug/m3 PM2.5 in the range of published short-term time-series estimates (~0.5-1.5 %).
+ADM_RR_PER10 = 1.008
+ADM_RR_SE_LOG = 0.0025          # SE of ln(RR per 10)
+ADM_BASE_RATE = 0.004           # cardio-respiratory admissions / person / year (placeholder)
+ADM_BASE_CV = 0.30
+
+
+def admissions(theta_ks, B, pop_m, sources, days, fractions=(0.5, 1.0), seed=1):
+    """Episode-attributable hospital admissions per source (same counterfactuals as `burden`)."""
+    rng = np.random.default_rng(seed)
+    D, K, S = theta_ks.shape
+    bg = B.mean(axis=1)[:, None]
+    C = bg + theta_ks.sum(1)
+    beta = rng.normal(np.log(ADM_RR_PER10), ADM_RR_SE_LOG, D)[:, None] / 10.0
+    y0 = ADM_BASE_RATE * rng.lognormal(0, ADM_BASE_CV, D)[:, None]
+    scale = (pop_m * 1e6)[None, :] * y0 * days / 365
+    afa = lambda c: 1 - np.exp(-beta * c)
+    out = {"total": (scale * afa(C)).sum(1)}
+    for i, k in enumerate(sources):
+        for f in fractions:
+            out[f"{k}@{f}"] = (scale * (afa(C) - afa(np.clip(C - f * theta_ks[:, i, :], 0, None)))).sum(1)
+    out["background@1.0"] = (scale * (afa(C) - afa(np.clip(C - bg, 0, None)))).sum(1)
+    return out

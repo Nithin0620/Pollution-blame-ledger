@@ -59,7 +59,7 @@ ul.lim{margin:6px 0 0 18px;padding:0;color:var(--muted)} ul.lim li{margin:4px 0}
 
   <h2>1 · The ledger</h2>
   <p class="lede">Each source's share of the episode's PM<sub>2.5</sub>, and the premature deaths it is responsible for. Deaths are <em>episode-equivalent</em> (see limits below) and come from counterfactual source removal.</p>
-  <div class="card scroll"><table id="ledger"></table><div id="pairs"></div></div>
+  <div class="card scroll"><table id="ledger"></table><div id="pairs"></div><p class="note" id="calnote" style="margin-top:10px"></p></div>
 
   <h2>2 · Episode timeline</h2>
   <p class="lede">Posterior-mean hourly contribution of each source, stacked, against observed population-weighted PM<sub>2.5</sub>.</p>
@@ -99,13 +99,14 @@ if (R.data_source==='synthetic') $('banner').innerHTML = '<div class="banner"><b
 $('kpis').innerHTML = [
  ['Mean PM₂.₅', f0(R.total_pm25.mean)+' µg/m³', `${R.episode_days.toFixed(0)}-day episode, population-weighted`],
  ['Attributable deaths', f0(R.total_deaths.mean), `90% CI ${f0(R.total_deaths.lo)} – ${f0(R.total_deaths.hi)} (episode-equivalent)`],
+ ['Hospital admissions', f0(R.total_adm.mean), `90% CI ${f0(R.total_adm.lo)} – ${f0(R.total_adm.hi)} (cardio-respiratory, episode)`],
  ['Sampler health', 'R̂ '+R.sampler.max_rhat.toFixed(3), `${R.sampler.divergences} divergences · min ESS ${f0(R.sampler.min_ess)} · ${R.sampler.variants} structural variants pooled`],
  ['Posterior predictive', (100*R.ppc_coverage90).toFixed(0)+'% coverage', 'of observations inside the 90% predictive interval'],
 ].map(k=>`<div class="card kpi"><div class="l">${k[0]}</div><div class="v">${k[1]}</div><div class="c">${k[2]}</div></div>`).join('');
 
 /* ledger table */
 const maxShare = Math.max(...R.components.map(c=>c.share.hi));
-let rows = `<tr><th>Source</th><th class="n">µg/m³ (mean)</th><th>Share of PM₂.₅ (90% CI)</th><th class="n">Deaths if removed</th><th class="n">Deaths averted at 50% cut</th><th>Identifiability</th></tr>`;
+let rows = `<tr><th>Source</th><th class="n">µg/m³ (mean)</th><th>Share of PM₂.₅ (90% CI)</th><th class="n">Deaths if removed</th><th class="n">Deaths averted at 50% cut</th><th class="n">Admissions if removed</th><th>Identifiability</th></tr>`;
 for (const c of R.components){
   const w = 200, x = v => v/maxShare*w;
   const bar = `<svg width="${w+8}" height="22"><rect x="0" y="6" width="${x(c.share.mean)}" height="10" rx="3" fill="${COL[c.id]}" opacity="${c.status==='unresolved'?.45:1}"/>
@@ -116,11 +117,15 @@ for (const c of R.components){
     <td class="n">${f1(c.mean_ugm3.mean)}<br>${ci(c.mean_ugm3,f1)}</td><td>${bar}</td>
     <td class="n">${f0(c.deaths_100.mean)}<br>${ci(c.deaths_100)}</td>
     <td class="n">${c.deaths_50?f0(c.deaths_50.mean)+'<br>'+ci(c.deaths_50):'—'}</td>
+    <td class="n">${c.adm_100?f0(c.adm_100.mean)+'<br>'+ci(c.adm_100):'—'}</td>
     <td><span class="chip ${c.status}">${c.status}</span></td></tr>`;
 }
 $('ledger').innerHTML = rows;
 const lab = id => R.components.find(c=>c.id===id).label;
-$('pairs').innerHTML = R.identifiability.flagged_pairs.map(p=>`<div class="pair"><b>Read together:</b> ${lab(p.a)} + ${lab(p.b)} = <b>${f1(p.sum_ugm3.mean)} µg/m³</b> ${ci(p.sum_ugm3,f1)}${p.sum_deaths_100?` · about <b>${f0(p.sum_deaths_100.mean)}</b> deaths ${ci(p.sum_deaths_100)}`:''}.<br><span class="note">${p.message} Do not read the two rows above as separate facts.</span></div>`).join('') || '<p class="note">No source pairs were flagged as unresolvable for this episode.</p>';
+$('pairs').innerHTML = R.identifiability.flagged_pairs.map(p=>`<div class="pair"><b>Read together:</b> ${lab(p.a)} + ${lab(p.b)} = <b>${f1(p.sum_ugm3.mean)} µg/m³</b> ${ci(p.sum_ugm3,f1)}${p.sum_deaths_100?` · about <b>${f0(p.sum_deaths_100.mean)}</b> deaths ${ci(p.sum_deaths_100)}${p.sum_adm_100?` and <b>${f0(p.sum_adm_100.mean)}</b> admissions ${ci(p.sum_adm_100)}`:''}`:''}.<br><span class="note">${p.message} Do not read the two rows above as separate facts.</span></div>`).join('') || '<p class="note">No source pairs were flagged as unresolvable for this episode.</p>';
+
+const CAL = R.calibration||{applied:false};
+$('calnote').innerHTML = CAL.applied ? `<b>Intervals are calibrated.</b> Raw posterior intervals were over-confident in validation, so each is widened by a factor learned on ${CAL.n_episodes} synthetic episodes (${Object.entries(CAL.k).filter(([k])=>!k.includes('+')&&k!=='total').map(([k,v])=>k+' ×'+v.toFixed(1)).join(', ')}). Section 4 checks the result on separate held-out episodes.` : '<b>Raw posterior intervals</b> (no calibration applied).';
 
 /* timeline */
 (function(){
@@ -172,9 +177,11 @@ $('pairs').innerHTML = R.identifiability.flagged_pairs.map(p=>`<div class="pair"
 (function(){
   if (!V){ $('val').innerHTML='<div class="card note">Validation was skipped for this run (it needs known ground truth, i.e. synthetic episodes).</div>'; return; }
   const names=NAMES, P=V.per_source;
-  let t=`<table><tr><th>Source</th><th class="n">Mean true (µg/m³)</th><th class="n">RMSE</th><th class="n">Bias</th><th class="n">90% CI coverage</th></tr>`;
-  for (const n of names){ const p=P[n]; const good=Math.abs(p.coverage90-.9)<=.15;
-    t+=`<tr><td><span class="sw" style="background:${COL[n]}"></span>${n}</td><td class="n">${f1(p.mean_truth)}</td><td class="n">${f1(p.rmse)}</td><td class="n">${p.bias>0?'+':''}${f1(p.bias)}</td><td class="n"><span class="chip ${good?'identified':p.coverage90>=.6?'weak':'unresolved'}">${(100*p.coverage90).toFixed(0)}%</span></td></tr>`; }
+  let t=`<table><tr><th>Component</th><th class="n">Mean true</th><th class="n">Median rel. error</th><th class="n">Bias</th><th class="n">Raw 90% cover</th><th class="n">Calibrated cover</th><th class="n">Widen ×</th></tr>`;
+  const chip=c=>`<span class="chip ${Math.abs(c-.9)<=.15?'identified':c>=.6?'weak':'unresolved'}">${(100*c).toFixed(0)}%</span>`;
+  const rows_=[...names, ...Object.keys(P).filter(k=>k.includes('+'))];
+  for (const n of rows_){ const p=P[n];
+    t+=`<tr><td>${COL[n]?`<span class="sw" style="background:${COL[n]}"></span>`:''}${n.replace('+',' + ')}</td><td class="n">${f1(p.mean_truth)}</td><td class="n">${(100*p.rel_err_median).toFixed(0)}%</td><td class="n">${p.bias>0?'+':''}${f1(p.bias)}</td><td class="n">${chip(p.coverage90_raw)}</td><td class="n">${chip(p.coverage90_cal)}</td><td class="n">×${p.k.toFixed(1)}</td></tr>`; }
   t+='</table>';
   // scatter
   const W=420,Hh=340,m={l:44,r:10,t:10,b:34}; const pts=V.points; const mx=Math.max(...pts.map(p=>Math.max(p.truth,p.hi)))*1.05;
@@ -185,23 +192,23 @@ $('pairs').innerHTML = R.identifiability.flagged_pairs.map(p=>`<div class="pair"
   for (const p of pts){ sc+=`<g data-i="${pts.indexOf(p)}"><line x1="${X(p.truth)}" x2="${X(p.truth)}" y1="${Y(p.lo)}" y2="${Y(p.hi)}" stroke="${COL[p.source]}" opacity=".5"/><circle cx="${X(p.truth)}" cy="${Y(p.est)}" r="3.4" fill="${COL[p.source]}"/></g>`; }
   sc+='</svg>';
   // injection
-  let inj='<table><tr><th>Injected</th><th class="n">True before → after</th><th class="n">Estimated before → after</th><th>Detected?</th><th>Truth in CI?</th></tr>';
+  let inj='<table><tr><th>Injected</th><th class="n">True before → after</th><th class="n">Estimated before → after</th><th>Detected?</th><th>Truth in calibrated CI?</th></tr>';
   for (const r of V.injection) inj+=`<tr><td>${r.source} ×2</td><td class="n">${f1(r.true_before)} → ${f1(r.true_after)}</td><td class="n">${f1(r.est_before)} → ${f1(r.est_after)}</td><td><span class="chip ${r.detected_increase?'identified':'unresolved'}">${r.detected_increase?'yes':'no'}</span></td><td><span class="chip ${r.truth_in_ci?'identified':'weak'}">${r.truth_in_ci?'yes':'no'}</span></td></tr>`;
   inj+='</table>';
-  const pairTxt = Object.entries(V.pair_sum_error||{}).map(([k,v])=>`${k}: median error ${(100*v.median_rel_err).toFixed(0)}%`).join(' · ');
-  $('val').innerHTML=`<div class="grid2"><div class="card"><b>Recovery of known truth</b> · ${V.n_episodes} unseen synthetic episodes<div class="scroll">${t}</div>
-    <p class="note" style="margin-top:8px">Posterior-predictive coverage of PM₂.₅ itself: ${(100*V.ppc_coverage90_mean).toFixed(0)}% (target 90%). Combined estimate error — ${pairTxt}.</p></div>
+  $('val').innerHTML=`<div class="grid2"><div class="card"><b>Recovery of known truth</b> · ${V.n_eval} held-out synthetic episodes (calibrated on ${V.n_cal} others)<div class="scroll">${t}</div>
+    <p class="note" style="margin-top:8px">Posterior-predictive coverage of PM₂.₅ itself: ${(100*V.ppc_coverage90_mean).toFixed(0)}% (target 90%). Calibrated coverage is measured on episodes the factors never saw. Wide factors mean the model alone is over-confident — the widening makes the ledger honest, it does not make it more precise.</p></div>
     <div class="card"><b>Truth vs. posterior</b>${sc}<div class="legend">${names.map(n=>`<span><span class="sw" style="background:${COL[n]}"></span>${n}</span>`).join('')}</div></div></div>
     <div class="card" style="margin-top:14px"><b>Plume injection</b> · double one source's true emissions, keep everything else identical, see if the ledger notices
     <div class="scroll">${inj}</div></div>
-    <p class="note">${V.note} Coverage well below 90% means the intervals are over-confident; this is reported, not hidden — it is the main thing to improve next.</p>`;
+    <p class="note">${V.note}</p>`;
 })();
 
 /* limits */
 const g=R.health_assumptions;
 $('limits').innerHTML = `<ul class="lim" style="margin-top:0">
-<li><b>Data.</b> This build runs on a synthetic generator with the exact CSV schema the real loader expects (CPCB hourly + ERA5/IMD met + FIRMS-derived footprint). Real-data ingestion is the next milestone.</li>
-<li><b>Concentration–response.</b> GEMM NCD+LRI pooled parameters (θ = ${g.gemm.theta} ± ${g.gemm.theta_se}) are placeholders; the published model is age-specific. Mortality only — morbidity is not yet modelled.</li>
+<li><b>Data.</b> This build runs on a synthetic generator. <code>ledger/ingest.py</code> converts CPCB exports, Open-Meteo/ERA5 meteorology and NASA FIRMS fires into the same schema; it is tested on fabricated fixtures but has not yet been run on real downloads.</li>
+<li><b>Calibration.</b> Interval-widening factors come from synthetic episodes and transfer only as far as that world resembles Delhi. Re-calibrate on real episodes with independent ground truth.</li>
+<li><b>Concentration–response.</b> GEMM NCD+LRI pooled parameters (θ = ${g.gemm.theta} ± ${g.gemm.theta_se}) are placeholders; the published model is age-specific. Admissions use a short-term log-linear function (RR ${g.admissions.rr_per10} per 10 µg/m³, base rate ${g.admissions.base_rate}/person/yr), also placeholders.</li>
 <li><b>Baseline rates and population.</b> Baseline adult mortality ${g.baseline_rate} /person/yr (±25%), adult share ${g.adult_share}, and per-station population are rough placeholders, not Delhi statistics.</li>
 <li><b>Episode-equivalent deaths.</b> Deaths are annualised long-term-exposure estimates scaled by episode length / 365. They express relative burden by source, not a count of people who died during the episode.</li>
 <li><b>Identifiability.</b> Sources whose tracers share the same ventilation signal can trade off; the ledger flags these instead of splitting them with false precision.</li></ul>`;

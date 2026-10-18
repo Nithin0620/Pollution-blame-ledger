@@ -53,7 +53,7 @@ def receptor_model(X, y=None, u_ab=(3.0, 2.0)):
 
 # Structural-uncertainty ensemble: how close is the tracer's non-source baseline to its observed minimum?
 #   (1,1) = no idea;  (3,2) = moderately close;  (6,1.5) = very close.   Draws from all variants are pooled with equal weight.
-VARIANTS = [(1.0, 1.0), (6.0, 1.5)]
+VARIANTS = [(3.0, 2.0)]   # add (1,1),(6,1.5) for a wider structural ensemble (2-3x slower)
 _CHECK = ("theta", "mu", "sigma", "sigma_obs", "B", "a_free", "tau_g", "L_used")
 
 

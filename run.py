@@ -29,7 +29,8 @@ def main():
     ap.add_argument("--demo", action="store_true")
     ap.add_argument("--csv"); ap.add_argument("--stations")
     ap.add_argument("--seed", type=int, default=7)
-    ap.add_argument("--validation-episodes", type=int, default=8)
+    ap.add_argument("--cal-episodes", type=int, default=12)
+    ap.add_argument("--eval-episodes", type=int, default=8)
     ap.add_argument("--skip-validation", action="store_true")
     ap.add_argument("--out", default="outputs")
     a = ap.parse_args()
@@ -46,6 +47,13 @@ def main():
     else:
         ap.error("use --demo, or --csv and --stations")
 
+    val = None
+    if a.demo and not a.skip_validation:
+        print(f"Falsification + calibration: {a.cal_episodes} calibration + {a.eval_episodes} held-out synthetic episodes...")
+        val = run_validation(a.cal_episodes, a.eval_episodes)
+        json.dump(val, open(os.path.join(a.out, "validation.json"), "w"), indent=1)
+    elif os.path.exists(os.path.join(a.out, "validation.json")):
+        val = json.load(open(os.path.join(a.out, "validation.json")))
     t0 = time.time(); print("Fitting hierarchical receptor model (NUTS)...")
     r = run_inference(df, st, seed=a.seed)
     res = clean(r); res["data_source"] = source
@@ -56,11 +64,6 @@ def main():
     print(f"  done in {time.time() - t0:.0f}s  rhat={r['sampler']['max_rhat']:.3f}  divergences={r['sampler']['divergences']}")
     json.dump(res, open(os.path.join(a.out, "results.json"), "w"), indent=1)
 
-    val = None
-    if a.demo and not a.skip_validation:
-        print(f"Falsification: {a.validation_episodes} synthetic episodes + plume injection...")
-        val = run_validation(a.validation_episodes)
-        json.dump(val, open(os.path.join(a.out, "validation.json"), "w"), indent=1)
     build_dashboard(a.out, res, val)
     print(f"Wrote {a.out}/results.json, validation.json, dashboard.html")
 

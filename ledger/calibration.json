@@ -1,0 +1,14 @@
+{
+ "k": {
+  "traffic": 3.1739783208968393,
+  "industry": 5.002246531898234,
+  "dust": 2.0370425212686554,
+  "biomass": 3.028901179246178,
+  "background": 3.2077283969950336,
+  "traffic+biomass": 2.1713178415696137,
+  "dust+background": 4.735988612925646
+ },
+ "n_episodes": 12,
+ "level": 0.9,
+ "learned_on": "synthetic"
+}

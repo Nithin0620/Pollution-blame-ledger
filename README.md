@@ -1,38 +1,44 @@
-# Pollution Blame Ledger — MVP
+# Pollution Blame Ledger
 
-> **Research prototype - read before citing any number.** All data in this repo is **synthetic** (simulated Delhi-like observations with known ground truth). Health figures use **placeholder** concentration-response, baseline-mortality and population values. In validation, only dust and the traffic+biomass *sum* are recovered reliably; individual source splits are biased and their intervals over-confident. Nothing here is a claim about real Delhi air or real deaths.
+> **Research prototype - read before citing any number.** All data in this repo is **synthetic** (simulated Delhi-like observations with known ground truth). Health figures use **placeholder** concentration-response, baseline-mortality and population values. Individual source splits are only reliable after the validation-derived interval widening described below; nothing here is a claim about real Delhi air or real deaths.
 
-Probabilistic source apportionment of Delhi PM2.5 with uncertainty-quantified health burden.
+Probabilistic source apportionment of Delhi PM2.5 with uncertainty-quantified health burden (deaths and hospital admissions) and an explicit statement of what the data cannot separate.
 
-## Run
+## Quick start
 ```
 pip install -r requirements.txt
-python run.py --demo                    # synthetic episode + validation + dashboard (~12 min; add --skip-validation for ~1 min)
-python run.py --csv obs.csv --stations stations.csv   # real data
-python -m pytest tests
+python run.py --demo                    # ~10 min: 12 calibration + 8 held-out episodes, plume injection, dashboard
+python run.py --demo --skip-validation  # ~30 s: reuse saved calibration + validation
+python -m pytest tests                  # offline tests (generator, features, health, diagnostics, ingestion, calibration)
 ```
-Open `outputs/dashboard.html`.
+Open `outputs/dashboard.html` (self-contained, no server).
 
-## Pipeline (maps to the spec)
+## What it does (maps to the problem statement)
 | Spec step | Code |
 |---|---|
-| 1 Data fusion | `ledger/features.py` (CSV schema below); `ledger/synth.py` generates schema-identical synthetic data |
-| 2 Tracer fingerprinting | `features.py`: CO+NO2 traffic, SO2 industry, PM10-PM2.5 dust, FRP footprint x 1/ventilation biomass |
-| 3 Hierarchical Bayesian receptor (NUTS) | `ledger/model.py`; identifiability in `ledger/diagnostics.py` |
-| 4 Health burden | `ledger/health.py` (GEMM CRF, counterfactual removal, Monte Carlo) |
-| 5 Falsification | `ledger/validate.py` (synthetic truth recovery, coverage, plume injection) |
+| 1 Multi-modal data fusion | `ledger/ingest.py` (CPCB CSVs + Open-Meteo/ERA5 met + NASA FIRMS fires), `ledger/features.py` |
+| 2 Tracer fingerprinting | CO+NO2 traffic, SO2 industry, PM10-PM2.5 dust, wind-advected FRP x 1/ventilation biomass |
+| 3 Hierarchical Bayesian receptor model (NUTS) | `ledger/model.py`: non-negative partially pooled source terms, learned tracer baselines, tracer cross-talk unmixing, proxy-mismatch gain, daily background random walk; `ledger/diagnostics.py` flags trade-off pairs |
+| 4 Health-burden propagation | `ledger/health.py`: GEMM mortality + short-term admissions, counterfactual removal (50% / 100%), Monte Carlo over CRF and baseline-rate uncertainty |
+| 5 Falsification | `ledger/validate.py`: synthetic ground-truth recovery, held-out calibration, coverage, plume injection; `ledger/calibration.py` |
 
-Input schema: observations `datetime, station, pm25, pm10, no2, so2, co, pblh_m, wind_ms, wind_dir_deg, frp_footprint`; stations `station, lat, lon, pop_m`.
+## Real data
+```
+python -m ledger.ingest --cpcb data/cpcb/ --firms data/firms_viirs.csv --stations data/stations.csv \
+    --start 2025-11-01 --end 2025-11-10 --out data/episode
+python run.py --csv data/episode/observations.csv --stations data/episode/stations.csv
+```
+`stations.csv`: `station, lat, lon, pop_m` (names must match the CPCB file names/columns). Ingestion is unit-tested on fabricated fixtures only; the Open-Meteo fetch and real CPCB/FIRMS exports have **not** been run in the build environment (no internet). Expect to adjust column matching on first contact with real files.
 
-## Honest status (first validation, 8 synthetic episodes)
-- Recovered well: dust (88% CI coverage) and the **traffic + biomass sum** (3% median error); PM2.5 predictive coverage 93%.
-- Not yet: individual traffic / biomass / industry / background splits are biased with over-confident intervals (0% coverage). Traffic and biomass share the night-time ventilation signal, so the dashboard reports them as a flagged pair.
-- Plume injection: doubling traffic and biomass is detected; biomass truth falls outside the CI.
+## Validation results (synthetic, 12 calibration + 8 held-out episodes)
+- Raw posterior intervals are over-confident (0-25% coverage for most sources). Dust is recovered well (8% median error); the traffic+biomass **sum** is recovered well (8%); individual traffic / industry / biomass / background splits are biased (20-55% median error).
+- Interval widening learned on the calibration episodes gives 75-100% coverage on held-out episodes. This makes the ledger honest, not more precise.
+- Sources whose widening factor is >= 2.5 can no longer be labelled "identified".
+- Plume injection: doubling traffic or biomass is detected; for biomass the truth still falls outside the calibrated interval.
 
-## Next steps
-1. Fix over-confidence (explicit source profiles / PMF-style mixing, wider structural ensemble).
-2. Real data: CPCB, ERA5 PBLH, FIRMS + HYSPLIT footprints, WorldPop.
-3. Age-specific GEMM, Delhi baseline rates, morbidity.
-4. Leave-one-episode-out on real episodes; triangulate with published apportionment studies.
-
-Placeholders (GEMM pooled params, baseline mortality, populations) are marked in `health.py` and the dashboard.
+## Known limitations / next steps
+1. Calibration comes from synthetic episodes; re-calibrate on real episodes with independent ground truth (receptor-model campaigns, speciation data).
+2. Replace placeholder parameters: age-specific GEMM, Delhi SRS/GBD baseline rates, WorldPop populations, admissions CRF.
+3. Explicit source-profile (PMF/CMB-style) mixing and Lagrangian back-trajectories (HYSPLIT) to improve separation of traffic vs biomass.
+4. Sentinel-2 land-cover change and OSM road/industrial geometries are not yet used.
+5. Leave-one-episode-out and triangulation against published apportionment studies on real data.

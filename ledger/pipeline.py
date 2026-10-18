@@ -5,14 +5,15 @@ from . import SOURCES, SOURCE_LABELS
 from .features import build
 from .model import fit
 from .diagnostics import identifiability
-from .health import burden, GEMM, BASE_RATE, ADULT_SHARE
+from .health import burden, admissions, GEMM, BASE_RATE, ADULT_SHARE, ADM_RR_PER10, ADM_BASE_RATE
+from .calibration import load as load_calibration, widen
 
 
 def q(a, ax=0):
     return {"mean": float(np.mean(a)), "lo": float(np.percentile(a, 5)), "hi": float(np.percentile(a, 95))}
 
 
-def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourly=True):
+def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourly=True, calibration='default'):
     f = build(df, stations)
     X, y, w = f["X"], f["y"], f["w"]
     post, prior, diag = fit(X, y, seed=seed, warmup=warmup, samples=samples, chains=chains)
@@ -25,6 +26,7 @@ def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourl
 
     days = y.shape[1] / 24
     bd = burden(th, B, f["pop_m"], SOURCES, days, seed=seed)
+    ad = admissions(th, B, f["pop_m"], SOURCES, days, seed=seed + 1)
     total_pm = pm.sum(1)
 
     comps = []
@@ -33,6 +35,7 @@ def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourl
              "status": ident["status"][n]}
         if n != "background":
             c["deaths_50"] = q(bd[f"{n}@0.5"]); c["deaths_100"] = q(bd[f"{n}@1.0"])
+            c["adm_50"] = q(ad[f"{n}@0.5"]); c["adm_100"] = q(ad[f"{n}@1.0"])
         else:
             c["deaths_100"] = q(bd["background@1.0"])
         comps.append(c)
@@ -43,13 +46,15 @@ def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourl
         p_["sum_ugm3"] = q(pm[:, i] + pm[:, j])
         if p_["a"] in SOURCES and p_["b"] in SOURCES:
             p_["sum_deaths_100"] = q(bd[f"{p_['a']}@1.0"] + bd[f"{p_['b']}@1.0"])
+            p_["sum_adm_100"] = q(ad[f"{p_['a']}@1.0"] + ad[f"{p_['b']}@1.0"])
 
     result = {"stations": f["stations"], "times": f["times"], "episode_days": days,
               "observed_pm25_popw": (f["y"] * w[:, None]).sum(0).round(1).tolist(),
-              "total_pm25": q(total_pm), "total_deaths": q(bd["total"]),
+              "total_pm25": q(total_pm), "total_deaths": q(bd["total"]), "total_adm": q(ad["total"]),
               "components": comps, "identifiability": ident, "sampler": diag,
               "health_assumptions": {"gemm": GEMM, "baseline_rate": BASE_RATE, "adult_share": ADULT_SHARE,
-                                     "note": "Placeholder parameters; mortality only; episode-equivalent (annualisation shortcut)."}}
+                                     "admissions": {"rr_per10": ADM_RR_PER10, "base_rate": ADM_BASE_RATE},
+                                     "note": "Placeholder parameters; mortality is episode-equivalent (annualisation shortcut); admissions use a short-term log-linear CRF."}}
     if hourly:
         # hourly pop-weighted posterior contributions per source
         Bt = np.repeat(B, 24, axis=1)[:, : y.shape[1]]
@@ -68,6 +73,8 @@ def run_inference(df, stations, seed=0, warmup=300, samples=300, chains=2, hourl
         yrep = mean + rng.normal(size=mean.shape) * sobs
         lo, hi = np.percentile(yrep, [5, 95], axis=0)
         result["ppc_coverage90"] = float(np.mean((y >= lo) & (y <= hi)))
+    cal = load_calibration() if calibration == "default" else calibration
+    result["calibration"] = widen(result, cal)
     result["_pm"] = pm      # internal (stripped before serialisation)
     result["_w"] = w
     return result
